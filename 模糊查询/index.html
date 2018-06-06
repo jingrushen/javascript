@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		li {
+			list-style: none;
+		}
+		#searchList {
+			overflow: hidden;
+		}
+		.searchItem {
+			border: 1px solid red;
+			line-height: 20px;
+			background-color: #fff;
+			padding: 5px;
+			margin: 10px 0;
+		}
+		#btnItem {
+			margin: 10px 0; 
+		}
+		.higtLight {
+			color: #fff;
+			background-color: red;
+		}
+	</style>
+</head>
+<body>
+	<textarea name="" id="textInput" cols="30" rows="10" placeholder="可输入数字，中文英文，回车，逗号，顿号，空格，tab等"></textarea>
+	<div id="btnItem">
+		<input type="button" id="1" value="添加到第一行">
+		<input type="button" id="2" value="添加到最后一行">
+		<input type="button" id="3" value="删除第一行">
+		<input type="button" id="4" value="删除最后一行">
+	</div>
+	<div id="searchList">
+		<li class="searchItem">first li</li>
+		<li class="searchItem">second li</li>
+		<li class="searchItem">third li</li>
+	</div>
+	<textarea name="" id="textSearch" cols="30" rows="10" placeholder="请输入查询字符"></textarea>
+	<button id="searchBtn">查询</button>
+	<script>
+		function $(selector) {
+			return document.querySelector(selector);
+		}
+		var textInput = $('#textInput'),
+			searchItem = $('.searchItem'),
+			textSearch = $('#textSearch'),
+			searchBtn = $('#searchBtn'),
+			btnItem = $('#btnItem'),
+			searchList = $('#searchList');
+
+
+		var addEvent = function (ele, type, fn) {
+			var type = type.replace(/^on/i,'').toLowerCase();
+			if (ele.addEventListener) {
+				ele.addEventListener(type, fn, false);
+			} else if (ele.attachEvent) {
+				ele.attachEvent('on' + type, fn, false);
+			}
+		};
+		var removeEvent = function (ele, type, fn) {
+			var type = type.replace(/^on/i,'').toLowerCase();
+			if (ele.removeEventListener) {
+				ele.removeEventListener(type, fn, false);
+			} else if (ele.detachEvent) {
+				ele.detachEvent('on' + type, fn, false);
+			}
+		};
+		var newNode = function (value) {
+			var li = document.createElement('li');
+			li.classList.add('searchItem');
+			li.innerHTML = getFormatCode(value);
+			return li;
+		};
+
+
+		function leftIn(value) {
+			searchList.insertBefore(newNode(value), searchList.firstChild);
+		}
+		function rightIn(value) {
+			searchList.appendChild(newNode(value));
+		}
+		function leftOut() {
+			while(searchList.firstChild.nodeType !== 1) {
+				searchList.removeChild(searchList.firstChild);
+			}
+			var removeNode = searchList.removeChild(searchList.firstChild);
+			alert(getOriginCode(removeNode.innerHTML));
+		}
+		function rightOut() {
+			while(searchList.lastChild.nodeType !== 1) {
+				searchList.removeChild(searchList.lastChild);
+			}
+			var removeNode = searchList.removeChild(searchList.lastChild);
+			alert(getOriginCode(removeNode.innerHTML));
+		}
+
+		/*
+		取消tab键的默认行为，当按下tab键时输出四个空格符
+		 */
+		addEvent(textInput, 'keydown', function (event) {
+			e = event || window.event;
+			keyCode = e.keyCode || e.which;
+			if (keyCode === 9) {
+				textInput.value += '    ';
+				e.preventDefault();
+			}
+		},false);
+
+
+		/*
+		给四个添加按钮绑定事件
+		 */
+		addEvent(btnItem, 'click', function (event) {
+			var e = event || window.event,
+				target = e.target || e.srcElement;
+			if (target.nodeName.toLowerCase() === 'input') {
+				var data = textInput.value;
+				switch (target.id) {
+
+					case '1': 
+						leftIn(data);
+						break;
+
+					case '2':
+						rightIn(data);
+						break;
+
+					case '3':
+						leftOut();
+						break;
+
+					case '4':
+						rightOut();
+						break;
+				}
+			}
+		},false);
+
+		addEvent(searchList, 'click', function (event) {
+			var e = event || window.event,
+				target = e.target || e.srcElement;
+			if (target.nodeName.toLowerCase() === 'li') {
+				var removeNode = searchList.removeChild(target);
+				alert(getOriginCode(removeNode.innerHTML));
+			}
+		})
+
+
+
+		addEvent(searchBtn, 'click', function (event) {
+			var nodeArr = Array.from(searchList.children);
+			nodeArr.forEach(function (node) {
+				node.innerHTML = keepBr(node.innerHTML);
+				match(node);
+			})
+			//match(searchValue);
+		},false);
+		function match(node) {
+			var searchValue = textSearch.value,
+				ctr = convertToReg(searchValue),
+				reg = new RegExp(ctr,'gi'),
+				nodeText = node.innerHTML;
+			var newText = nodeText.replace(reg, function($1) {
+				return '<span style="color:#fff;background-color:red">'+ $1 +'</span>'
+			})
+			node.innerHTML = newText;
+		}
+
+		/**
+		 * [getFormatCode description]
+		 * @param  {[string]} value [待处理的字符串]
+		 * @return {[string]}       [保留空格符，回车符，tab符的字符串]
+		 * \r:回车符 \t:tab符 \n:换行符 \s:空白符
+		 */
+		function getFormatCode(value) {
+			return value.replace(/[\r\n]/g, '<br/>').replace(/\s/g, '&nbsp;').replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+		}
+		/**
+		 * [keepBr description]
+		 * @param  {[string]} value [包含有span和br的字符串]
+		 * @return {[string]}       [保留br，删除span]
+		 */
+		function keepBr(value) {
+			return value.replace(/(<\/?span.*?>)/g, "");
+		}
+		/**
+		 * [getOriginCode description]
+		 * @param  {[string]} value [包含有html特殊字符]
+		 * @return {[string]}       [html转义字符]
+		 */
+		function getOriginCode(value) {
+			return value.replace(/<br>/g, '\n').replace(/\&nbsp;/g, ' ').replace(/\&nbsp;{4}/g, '\t');
+		}
+
+		/*
+		将convert转换成符合正则表达式的规范
+		 */
+		function convertToReg(convert) {
+			return convert.replace(/([[.*-+?\$\\()\]])/g, '\\$1');
+		}
+
+	</script>
+</body>
+</html>
+<!-- 
+在添加li时，要注意全角半角符号，以及回车，空格等
+
+innerHTML / innerText / value
+innerHTML 会解析字符串中的html标签和style属性
+innerText 会隐藏不该出现的字符，例如html标签和style属性
+
+String.prototype.replace(reg, function(){
+	retrun ……
+})
+ -->

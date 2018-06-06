@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		div {
+			border: 2px solid black;
+			margin: 10px 5px;
+			background: #fff;
+			transition: background-color 0.5s ease 0s;
+		}
+		div.highlight {
+			background-color: red;
+		}
+		#parent {
+			display: flex;
+			width: 400px;
+			flex-wrap: wrap;
+			height: 200px;
+		}
+	</style>
+</head>
+<body>
+<!--	<div id="1">1
+        <div id="2">2
+            <div id="3">3</div>
+            <div id="4">4</div>
+        </div>
+        <div id="5">5
+            <div id="6">6</div>
+            <div id="7">7</div>
+        </div>
+    </div>--> 
+	<!--  <div class="parent">
+		<span class="title">广东技术师范学院</span>
+		<div class="first">
+			<div class="second">
+				<div class="third">
+					<div class="forth"></div>
+					<div class="forth"></div>
+				</div>
+				<div class="third">
+					<div class="forth"></div>
+					<div class="forth"></div>
+				</div>
+			</div>
+			<div class="second">
+				<div class="third">
+					<div class="forth"></div>
+					<div class="forth"></div>
+				</div>
+				<div class="third">
+					<div class="forth"></div>
+					<div class="forth"></div>
+				</div>
+			</div>
+		</div>
+		<div class="first">
+			<div class="second">
+				<div class="third">
+					<div class="forth"></div>
+					<div class="forth"></div>
+				</div>
+				<div class="third">
+					<div class="forth"></div>
+					<div class="forth"></div>
+				</div>
+			</div>
+			<div class="second">
+				<div class="third">
+					<div class="forth"></div>
+					<div class="forth"></div>
+				</div>
+				<div class="third">
+					<div class="forth"></div>
+					<div class="forth"></div>
+				</div>
+			</div>
+		</div>
+
+	</div>-->
+	<div id="parent">
+		<span class="title">Grand</span>
+		<div>
+			<span class="title">father1</span>
+			<div>
+				<span class="title">son1</span>
+			</div>
+			<div>
+				<span class="title">son2</span>
+			</div>
+			<div>
+				<span class="title">son3</span>
+			</div>
+		</div>
+		<div>
+			<span class="title">father2</span>
+			<div>
+				<span class="title">son4</span>
+			</div>
+			<div>
+				<span class="title">son5</span>
+			</div>
+			<div>
+				<span class="title">son6</span>
+			</div>
+		</div>
+		<div>
+			<span class="title">father3</span>
+			<div>
+				<span class="title">son7</span>
+				<div>
+					<span class="title">grandson1</span>
+				</div>
+				<div>
+					<span class="title">grandson2</span>
+				</div>
+			</div>
+		</div>
+		<div>
+			<span class="title">father4</span>
+		</div>
+	</div>
+	<button id="preTraverse">前序遍历</button>
+	<button id="inTraverse">中序遍历</button>
+	<button id="lastTraverse">后序遍历</button>
+	<input type="text" id="searchInput" placeholder="请输入查询内容">
+	<button id="searchBtn1">广义查询</button>
+	<button id="searchBtn2">深度查询</button>
+	<button id="deleteBtn">删除</button>
+	<input type="text" id="addInput" placeholder="请输入增加节点的内容">
+	<button id="addBtn">添加</button>
+	
+	<script>
+		function $(selector) {
+			if (/^#\w+/.test(selector)) {
+				return document.querySelector(selector);
+			}
+			return document.querySelectorAll(selector);
+		}
+		function addEvent(ele, type, handler) {
+			var type = type.replace(/^'on'/i, '').toLowerCase();
+			if (ele.addEventListener) {
+				ele.addEventListener(type, handler, false);
+			} else if (ele.attachEvent) {
+				ele.attachEvent('on' + type, handler);
+			}
+		} 
+
+
+		/*深度优先遍历*/
+		function traverseByDFS(domRoot, rootArr) {
+			if (domRoot) {
+				if (domRoot.nodeName.toLowerCase() === 'div') {
+					rootArr.push(domRoot);
+				}
+				traverseByDFS(domRoot.firstElementChild, rootArr);
+				traverseByDFS(domRoot.nextElementSibling, rootArr);
+			}
+			return rootArr;
+		}
+		/*广度优先遍历*/
+		function traverseByBFS(domRoot, rootArr) {
+			var queue = [domRoot];
+			while (queue.length) {
+				var node = queue.shift();
+				rootArr.push(node);
+				Array.from(node.children).forEach(function (child) {
+					if (child.nodeName.toLowerCase() === 'div') {					
+						queue.push(child);
+					}
+				})
+			}
+			return rootArr;
+		}
+
+
+		var nodes = $('div'),
+			preTraverse = $('#preTraverse'),
+			inTraverse = $('#inTraverse'), 
+			lastTraverse = $('#lastTraverse'),
+			searchBtn = $('#searchBtn'),
+			searchInput = $('#searchInput'),
+			parent = $('#parent'),
+			deleteBtn = $('#deleteBtn'),
+			addInput = $('#addInput'),
+			addBtn = $('#addBtn');
+
+
+
+
+		function clearAllTimeouts(id) {
+			while (id >= 0) {
+			clearTimeout(id);
+				id--;
+			}
+		}
+
+		function BinaryTree() {
+
+			//节点属性
+			var Node = function (data){
+				this.data = data;
+				this.left = null;
+				this.right = null;
+				this.callback = function (node) {
+					console.log(node);
+					id = setTimeout(function () {
+						node.data.style.backgroundColor = 'blue';
+					},timer+=500);
+					setTimeout(function () {
+						node.data.style.backgroundColor = 'green';
+					},timer+=500);
+					node.data.style.backgroundColor = '#fff'; //用于清除之前遍历留下的样式
+				}
+ 			}
+ 			var timer = 500;
+ 			//初始化二叉树
+ 			this.root = null;
+ 			//初始化父节点队列，用于插入节点
+ 			this.queue = [];
+ 			var active = false;
+ 			var id = null;
+
+
+ 			/*深度优先遍历*/
+
+
+ 			this.insert = function (node) {
+ 				var newNode = new Node(node);
+ 				if (this.root === null) {
+ 					this.root = newNode;
+ 					this.queue.push(this.root);
+ 				} else {
+ 					var parent = this.queue[0];
+ 					if (parent.left === null) {
+ 						parent.left = newNode;
+ 						this.queue.push(parent.left);
+ 					} else if (parent.right === null) {
+ 						parent.right = newNode;
+ 						this.queue.push(parent.right);
+ 						this.queue.shift();
+ 					}
+ 				}
+ 			}
+
+
+ 			/*先序遍历*/
+ 			var preOrderTraverse = function (node) {
+  				if (node) {
+  					node.callback(node);
+	 				preOrderTraverse(node.left);
+	 				preOrderTraverse(node.right);
+ 				}	
+ 			}
+ 			this.preOrder = function () {
+ 				clearAllTimeouts(id);
+ 				preOrderTraverse(this.root);
+ 				timer = 500;
+ 			}
+
+
+ 			/*中序遍历*/
+ 			var inOrderTraverse = function (node) {
+  				if (node) {
+	 				inOrderTraverse(node.left);
+  					node.callback(node);
+	 				inOrderTraverse(node.right);
+ 				}	
+ 			}
+ 			this.inOrder = function () {
+ 				clearAllTimeouts(id);
+ 				inOrderTraverse(this.root);
+ 				timer = 500;
+ 			}
+
+  			/*后序遍历*/
+ 			var lastOrderTraverse = function (node) {
+  				if (node) {
+	 				lastOrderTraverse(node.left);
+	 				lastOrderTraverse(node.right);
+  					node.callback(node);
+ 				}	
+ 			}
+ 			this.lastOrder = function () {
+ 				clearAllTimeouts(id);
+ 				lastOrderTraverse(this.root);
+ 				timer = 500;
+ 			}
+
+ 			var appendSelectedNode = function (node) {
+ 				var selectedNode = [];
+ 				if (selectedNode.indexOf(node) < 0) {
+ 					selectedNode.push(node);
+ 				}
+ 			}
+
+ 			/*选择*/
+	 		this.select = function() {
+				var e = event || window.event,
+					target = e.target || e.srcElement,
+					node = e.target;
+				e.target.nodeName.toLowerCase() === 'span'? node = node.parentNode : node;
+				node.classList.toggle('highlight');
+			}
+
+			/*删除*/
+			this.delete = function() {
+				var selectedArr = Array.prototype.slice.call(document.querySelectorAll('div.highlight'));
+				while (selectedArr.length) {
+					var node = selectedArr.shift();
+					node.parentNode.removeChild(node);
+				}
+			}
+
+			/*添加*/
+			this.add = function() {
+				var selectedNode = document.getElementsByClassName('highlight'),
+					value = addInput.value;
+					console.log(selectedNode);
+				if (selectedNode.length > 1) {
+					alert('对不起，请一个一个节点慢慢添加');
+					return ;
+				} else {
+					var span = document.createElement('span'),
+						div = document.createElement('div');
+					span.innerHTML = value;
+					div.appendChild(span);
+					selectedNode[0].appendChild(div);
+				}
+			}
+
+
+			/*查找*/
+			var reset = function() {
+				time = 500;
+				clearAllTimeouts(id);
+			}
+			this.searchNode = function (root, method) {
+				reset();
+				var value = searchInput.value;
+				if (!value) {
+					alert('请输入查询内容');
+					return ;
+				}
+				var queue = method(root, []),
+					flag = false;
+				while (queue.length) {
+					var node = queue.shift();
+					node.style.backgroundColor = '#fff';
+					if (node.firstElementChild.innerHTML === value) {
+						flag = true;
+					}
+					showCheck(node, flag);
+				}
+				if (!flag) {
+					setTimeout(function () {
+						alert("抱歉，找不到");
+					}, time += 500);
+				}
+
+			}
+			var showCheck = function (node, flag) {
+				setTimeout(function () {
+					node.style.backgroundColor = 'green';
+				}, time += 500);
+				id = setTimeout(function () {
+					if (flag) {
+						node.classList.add('highlight');
+						console.log(node);
+						clearAllTimeouts(id);
+						alert('找到了！');
+					} else {
+						node.style.backgroundColor = '#fff';
+					}
+				}, time += 500);
+			}			
+
+		}
+
+
+		var bt = new BinaryTree();
+		nodes.forEach(function (cur, index) {
+			bt.insert(nodes[index]);
+		})
+
+
+
+		addEvent(preTraverse, 'click', bt.preOrder.bind(bt));
+		addEvent(inTraverse, 'click', bt.inOrder.bind(bt));
+		addEvent(lastTraverse, 'click', bt.lastOrder.bind(bt));
+		addEvent(searchBtn1, 'click', bt.searchNode.bind(bt, nodes[0], traverseByBFS));
+		addEvent(searchBtn2, 'click', bt.searchNode.bind(bt, nodes[0], traverseByDFS));
+		addEvent(parent, 'click', bt.select.bind(bt));
+		addEvent(deleteBtn, 'click', bt.delete.bind(bt));
+		addEvent(addBtn, 'click', bt.add.bind(bt));
+
+	</script>
+</body>
+</html>
+<!-- 
+	在绑定事件上，调用的handler的this指针指向的是addEventListener的元素，（如上面的button），所以要使用bind（bt），将this指向bt
+	扩展：当函数作为方法调用的时候，this指向调用该方法的对象，当函数作为嵌套函数调用时，this指向全局对象（非严格模式下）或者undefined（严格模式下）
+
+
+	先序遍历 根节点 -> 左子树 -> 右子树
+	中序遍历 左子树 -> 根节点 -> 右子树
+	后序遍历 左子树 -> 右子树 -> 根节点
+
+
+	广度优先遍历：先遍历同一层级的元素
+	深度优先遍历：遍历一个元素直到最小的孩子然后返回到最近的未遍历的兄弟节点
+
+ -->

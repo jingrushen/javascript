@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		#inputItem{
+			display: inline-block;
+		}
+		.outside{
+			display: flex;
+			width: 100%;
+			align-items: flex-end;
+			align-content: flex-end;
+			min-height: 110px;
+		}
+		.inside{
+			background: red;
+			width: 36px;
+			margin: 5px;
+			list-style: none;
+			color: #fff;
+			text-align: center;
+		}
+		#sortButton {
+			margin: 10px 0;
+		}
+	</style>
+</head>
+<body>
+	<input type="text" id="inputText">
+	<div id="inputItem">
+		<input type="button" id="inputLeftin" value="左侧入">
+		<input type="button" id="inputRightin" value="右侧入">
+		<input type="button" id="inputLeftout" value="左侧出">
+		<input type="button" id="inputRightout" value="右侧出">
+	</div>
+	<div id="sortButton">
+		<button id="1">冒泡排序</button>
+		<button id="2">插入排序</button>
+		<button id="3">快速排序</button>
+		<button id="4">选择排序</button>
+		<button id="5">二分排序</button>
+	</div>
+	<div class="outside">
+		<li class="inside" style="height: 42px">42</li>
+		<li class="inside" style="height: 76px">76</li>
+		<li class="inside" style="height: 45px">45</li>
+		<li class="inside" style="height:14px ">14</li>
+		<li class="inside" style="height: 62px">62</li>
+	</div>
+
+	<script>
+		function $(selector) {
+			return document.querySelector(selector);
+		}
+		var inputText = $('#inputText'),
+			inputLeftin = $('#inputLeftin'),
+			inputRightin = $('#inputRightin'),
+			inputLeftout = $('#inputLeftout'),
+			inputRightout = $('#inputRightout'),
+			inputItem = $('#inputItem'),
+			outside = $('.outside'),
+			inside = document.getElementsByClassName('inside'),
+			button = $('#sortButton');
+			
+
+
+		var T = {
+			curValue: 0,
+			addEvent: function (ele, type, fn) {
+				var type = type.replace(/^on/i,'').toLowerCase();
+				if (ele.addEventListener) {
+					ele.addEventListener(type, fn, false);
+				} else if (ele.attachEvent) {
+					ele.attachEvent('on' + type, fn, false);
+				}
+			},
+			removeEvent: function (ele, type, fn) {
+				var type = type.replace(/^on/i,'').toLowerCase();
+				if (ele.removeEventListener) {
+					ele.removeEventListener(type, fn, false);
+				} else if (ele.detachEvent) {
+					ele.detachEvent('on' + type, fn, false);
+				}
+			},
+			newNode: function (value) {
+				var li = document.createElement('li');
+				li.classList.add('inside');
+				//li.innerHTML = value; 
+				return li;
+			},
+
+		}
+
+		function render(state, nodeArr) {
+			var arr,
+				nodeLen = nodeArr.length,
+				timer = 1000;
+			while (state.length) {
+				arr = state.shift();
+				(function(arr) {
+					setTimeout(function () {
+						for (var i = 0; i < nodeLen; i++) {
+							setNodeAttr(nodeArr[i], arr[i]);
+						}
+					}, timer += 1000);
+				})(arr)
+			}
+		}
+		function setNodeAttr(node, height) {
+			node.style.height = height + 'px';
+			node.innerHTML = height;
+		}
+
+		function leftIn(value) {
+			outside.insertBefore(T.newNode(value), outside.firstChild);
+			setNodeAttr(outside.firstChild, value);
+			/*outside.firstChild.innerHTML = value;
+			outside.firstChild.style.height = value + 'px';*/
+		}
+		function rightIn(value) {
+			outside.appendChild(T.newNode(value));
+			setNodeAttr(outside.lastChild, value);
+			/*outside.lastChild.innerHTML = value;
+			outside.lastChild.style.height = value + 'px';*/
+		}
+		function leftOut() {
+			while(outside.firstChild.nodeType !== 1) {
+				outside.removeChild(outside.firstChild);
+			}
+			var removeNode = outside.removeChild(outside.firstChild);
+			alert(removeNode.innerHTML);
+		}
+		function rightOut() {
+			while(outside.lastChild.nodeType !== 1) {
+				outside.removeChild(outside.lastChild);
+			}
+			var removeNode = outside.removeChild(outside.lastChild);
+			alert(removeNode.innerHTML);
+		}
+
+
+		T.addEvent(inputItem, 'click', function (event) {
+			var data = inputText.value;
+			var judge = /^\d+$/.test(data)  && parseInt(data) >= 10 && parseInt(data) <= 100; //true说明数据正确 为false则数据错误
+			
+			if (!judge && data !== '') {
+				alert('数据格式不正确，请重新输入');
+			} else {
+				T.curValue = parseInt(data);
+				switch (event.target.id) {
+					case 'inputLeftin' :
+						if (data === '') { alert('请输入数字');}
+						else if (inside.length >= 60) { alert('请删除一些节点，已经有60个了');}
+						else leftIn(T.curValue);
+						break;
+					case 'inputRightin' :
+						if (data === '') { alert('请输入数字');}
+						else if (inside.length >= 60) { alert('请删除一些节点，已经有60个了');}
+						else rightIn(T.curValue);
+						break;
+					case 'inputLeftout' :
+						if (inside.length > 0) {
+							leftOut();
+						}
+						break;
+					case 'inputRightout' :
+						if (inside.length > 0) {
+							rightOut();
+						}
+						break;
+				}
+			}
+			inputText.value = '';
+		});
+
+		T.addEvent(outside, 'click', function (event) {
+			var e = event || window.event;
+			var target = e.target || e.scrElement;
+			if (target.nodeName.toLowerCase() === 'li') {
+				var removeNode = outside.removeChild(e.target);
+				alert(removeNode.innerHTML);
+			}
+		},false);
+
+
+		T.addEvent(sortButton, 'click', function(event) {
+			var e = event || window.event,
+				target = e.target || e.scrElement,
+				state,
+				nodeArrH,
+				nodeArrH;
+			nodeArr = outside.children;
+			nodeArrH = Array.from(nodeArr).reduce(function (init, node) {
+				init.push(node.clientHeight);
+				return init;
+			},[]);
+			if (target.nodeName.toLowerCase() === 'button') {
+				switch (target.id) {
+
+					case '1':
+						state = bubbleSort(nodeArrH);
+						break;
+
+					case '2':
+						state = insertSort(nodeArrH);
+						break;
+
+					case '3':
+						state = quickSort(nodeArrH, 0, nodeArrH.length-1, []);
+						break;
+
+					case '4':
+						state = selectSort(nodeArrH);
+						break;
+
+					case '5':
+						state = sort(nodeArrH);
+						break;
+
+				}
+			}
+			render(state, nodeArr);
+		})		
+
+
+
+		/*冒泡排序*/
+		
+		function bubbleSort(arr) {
+			var len = arr.length, temp,state = [];
+			for (var i = 0; i < len-1; i++) {
+				for (var j = i+1; j < len; j++){
+					if (arr[i] > arr[j]) {
+						temp = arr[j];
+						arr[j] = arr[i];
+						arr[i] = temp;
+						state.push(arr.slice(0));
+					}
+				}
+			}
+			return state;
+		}
+
+		/*选择排序*/
+		function selectSort(arr) {
+			var len = arr.length, temp, flag, state = [];
+			for (var i = 0; i < len-1; i++) {
+				flag = i;
+				for (var j = i+1; j < len; j++) {
+					if (arr[flag] > arr[j]) {
+						flag = j;
+					}
+				}
+				if (flag !== i) {
+					temp = arr[flag];
+					arr[flag] = arr[i];
+					arr[i] = temp;
+					state.push(arr.slice(0));
+ 				}
+			}
+			return state;
+		}
+		/*插入排序*/
+		function insertSort(arr) {
+			var len = arr.length, temp,state = [];
+			for (var i = 1; i < len; i++) {
+				temp = arr[i];
+				for (var j = i; j > 0; j--) {
+					if (temp < arr[j-1]) {
+						arr[j] = arr[j-1];
+						arr[j-1] = temp;
+						state.push(arr.slice(0));
+					}
+				}
+			}
+			return state;
+		}
+
+
+		/*二分排序*/
+		
+		function sort(arr) {
+			var len = arr.length, state = [];
+			for (var i = 1; i < len; i++) {
+				var low, high, mid;
+				low = 0;
+				high = i-1;
+				var temp = arr[i];
+				while (low <= high) {
+					mid = Math.floor((low + high) / 2);
+					if (arr[mid] > temp) {
+						high = mid - 1;
+					} else {
+						low = mid + 1;
+					}
+				}
+				for (var j = i - 1; j > high; j--) {
+					arr[j + 1] = arr[j];
+				}
+				arr[high + 1] = temp;
+				state.push(arr.slice(0));
+			}
+			return state;
+		}
+
+
+
+		/*快速排序*/
+		/*
+		利用递归方法
+		先选出temp = arr[low]，low指向最小值，high指向最大值
+		不断让arr[low] arr[high] 与temp比较，将数组分成两个部分，左边为都小于temp的数，右边为都大于temp的数，
+		再继续递归，先把左边小于temp再一次操作，选出low，temp，high…… 然后右边操作
+		*/
+		
+		function quickSort(arr, low, high, state) {
+			if (low < high) {				
+				var pre = Partition(arr, low, high, state);
+				quickSort(arr, low, pre-1, state);
+				quickSort(arr, pre+1, high, state);
+			}
+			return state;
+		}
+		function Partition(arr, low, high, state) {
+			var temp = arr[low];
+			while (low < high) {
+				while (low < high && arr[high] >= temp) {
+					high--;
+				}
+				if (low < high) {
+					arr[low++] = arr[high];
+				}
+				while (low < high && arr[low] <= temp) {
+					low++;
+				}
+				if (low < high) {
+					arr[high--] = arr[low];
+				}
+			}
+			arr[low] = temp;
+			state.push(arr.slice(0));
+			return low;
+		}
+
+	</script>
+</body>
+</html>
+
+<!-- 
+1.NodeList中包含有textnode节点，要注意判断nodeType类型将它们移除
+2.正则表示要注意开头^ 和结尾$
+3.动态设置/获取节点属性用 setAttribute('key',value) getAttribute('key');
+4.动态设置节点属性时不能设置自定义属性如width height 要先将dom节点加入之后才能进行设置属性操作
+
+
+
+textarea输入的格式都是string类型
+
+clientHeight / clientWidth 是只读的
+
+ -->

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+		}
+		form {
+			width: 750px;
+			border: 1px solid #ddd;
+			border-radius: 10px;
+			margin: 10px auto;
+			padding: 20px;
+		}
+		input, select {
+			padding: 5px;
+			border-radius: 5px;
+			border: 1px solid #ddd;
+		}
+		option {
+			border: 1px solid #ddd;
+			border-radius: 5px;
+		}
+		#option {
+			margin-top: 20px;
+			position: relative;
+			height: 50px;
+		}
+		#student_option {
+			position: absolute;
+			left: 0px;
+			top: 0px;
+		}
+		#non-student_option {
+			position: absolute;
+			left: 0px;
+			top: 0;
+		}
+		#non-student_option input {
+			width: 500px;
+		}
+		.hidden {
+			display: none;
+		}
+
+	</style>
+</head>
+<body>
+	<form action="">
+		<div id="catogary">
+			<input type="radio" id="student" value="在校生" name="status" checked>
+			<label for="student">在校生</label>
+
+			<input type="radio" id="non-student" value="非在校生" name="status">
+			<label for="non-student">非在校生</label>
+		</div>
+		<div id="option">
+			<div id="student_option">
+				<span>学校</span>
+				<select name="" id="city">
+					<option value="北京">北京</option>
+					<option value="上海">上海</option>
+					<option value="广州">广州</option>
+				</select>
+				<select name="" id="bjSchool" class="univercity">
+					<option value="清华大学">清华大学</option>
+					<option value="北京大学">北京大学</option>
+					<option value="北京交通大学">北京交通大学</option>
+					<option value="首都师范大学">首都师范大学</option>
+				</select>
+				<select name="" id="shSchool" class="univercity hidden">
+					<option value="上海交通大学">上海交通大学</option>
+					<option value="上海师范大学">上海师范大学</option>
+					<option value="上海传媒大学">上海传媒大学</option>
+				</select>
+				<select name="" id="gzSchool" class="univercity hidden">
+					<option value="中山大学">中山大学</option>
+					<option value="暨南大学">暨南大学</option>
+					<option value="华南师范大学">华南师范大学</option>
+				</select>
+			</div>
+			<div id="non-student_option" class="hidden">
+				<span>就业单位</span>
+				<input type="text">
+			</div>
+		</div>
+	</form>
+	<script>
+		var radios = document.forms[0].elements['status'],
+			select = document.querySelector('#city'),
+			uni = document.querySelectorAll('.univercity');
+
+		radios.forEach(function (radio) {
+			radio.onchange = function () {
+				if (this.checked && this.value === '在校生') {
+					document.querySelector('#student_option').classList.remove('hidden');
+					document.querySelector('#non-student_option').classList.add('hidden');
+				} else {
+					document.querySelector('#non-student_option').classList.remove('hidden');
+					document.querySelector('#student_option').classList.add('hidden');
+				}
+			}
+		})
+		select.onchange = function () {
+			for (var i = 0; i < uni.length; i++) {
+				uni[i].classList.add('hidden');
+			}
+			uni[select.selectedIndex].classList.remove('hidden');
+		}
+	</script>
+</body>
+</html>

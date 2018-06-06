@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		form {
+			font-size: 16px;
+			width: 750px;
+			border: 1px solid #ddd;
+			border-radius: 5px;
+			margin: 10px auto;
+			padding: 20px;
+		}
+		div {
+			margin: 20px;
+			padding: 0 20px;
+			height: 60px;
+		} 
+		label {
+			font-weight: bold;
+		}
+		span {
+			font-size: 12px;
+			color: #ddd;
+			display: block;
+			margin-left: 60px;
+		}
+
+		input {
+			border: 1px solid #ccc;
+			width: 400px;
+			line-height: 20px;
+			height: 20px;
+			border-radius: 5px;
+			padding: 10px;
+			margin-left: 20px;
+		}
+		button {
+			border-radius: 5px;
+			background-color: blue;
+			color: #fff;
+			outline: none;
+			border: none;
+			height: 42px;
+			line-height: 42px;
+			padding: 0 25px;
+			cursor: pointer;
+			margin: 0 20%;
+		}
+	</style>
+</head>
+<body>
+	<form action="">
+		<div id="div1">
+			<label for="text1">名称</label>
+			<input type="text" id="text1">
+			<span id="span1"></span>
+		</div>
+
+		<div id="div2">
+			<label for="text2">密码</label>
+			<input type="password" id="text2">
+			<span id="span2"></span>
+		</div>
+
+		<div id="div3">
+			<label for="text3" style="margin-left: -30px">密码确认</label>
+			<input type="password" id="text3">
+			<span id="span3"></span>
+		</div>
+
+		<div id="div4">
+			<label for="text4">邮箱</label>
+			<input type="text" id="text4">
+			<span id="span4"></span>
+		</div>
+
+		<div id="div5">
+			<label for="text5">手机</label>
+			<input type="text" id="text5">
+			<span id="span5"></span>
+		</div>
+
+		<button type="button">提交</button>
+	</form>
+	<script>
+		function $(selector) {
+			return document.querySelector(selector);
+		}
+		var button = $('button'),
+			text1 = $('#text1'),
+			text2 = $('#text2'),
+			text3 = $('#text3'),
+			text4 = $('#text4'),
+			text5 = $('#text5'),
+			span1 = $('#span1'),
+			span2 = $('#span2'),
+			span3 = $('#span3'),
+			span4 = $('#span4'),
+			span5 = $('#span5'),
+			span = $('span');
+
+
+		text1.onfocus = function() {
+			span1.innerHTML = '必填，长度为4-16个字符';
+		}
+		text1.onblur = function () {
+			text1.onfocus = null;
+			matchText(text1, span1);
+		}
+
+		text2.onfocus = function () {
+			span2.innerHTML = '必填，长度为6-16个字符';
+		}
+		text2.onblur = function () {
+			text2.onfocus = null;
+			matchText(text2, span2);
+		}
+		text3.onfocus = function () {
+			span3.innerHTML = '必填，长度为6-16个字符';
+		}
+		text3.onblur = function () {
+			text3.onfocus = null;
+			matchText(text3, span3);
+		}
+
+		button.onclick = function() {
+			matchText(text1, span1);
+			matchText(text2, span2);
+			matchText(text3, span3);
+			matchText(text4, span4);
+			matchText(text5, span5);
+		}
+
+		function matchText(text, span) {
+			var value = text.value.trim();
+			if (!value) {
+				showResult(false, '不能为空', text, span);
+				return ;
+			}
+			var len = strLen(value);
+			switch (text) {
+				case text1:
+					if (len > 16 || len < 4) {
+						showResult(false, '长度为4-16个字符', text, span);
+						return ;
+					}
+					showResult(true, '姓名格式正确', text, span);
+					break;
+				case text2:
+					if (len > 16 || len < 6) {
+						showResult(false, '长度为6-16个字符', text, span);
+						return ;
+					}
+					showResult(true, '密码格式正确', text, span);
+					break;
+				case text3:
+					if (value !== text2.value) {
+						showResult(false, '密码不一致', text, span);
+						return ;
+					}
+					showResult(true, '密码一致', text, span);
+					break;
+				case text4:
+					if (!/\w+\@\w+\.[com|cn]/.test(value)) {
+						alert('邮箱格式不正确');
+						showResult(false, '邮箱格式不正确', text, span);
+						return ;
+					}
+					break;
+				case text5:
+					if (!/^1[3857]\d([\- \,])?\d{4}\1\d{4}/.test(value)) {
+						alert('手机格式不正确');
+						showResult(false, '手机不正确', text, span);
+						return ;
+					}
+					break;
+			}
+			
+		}
+
+		function showResult(flag, str, text, span) {
+			var color;
+			if (flag) {
+				color = 'green';
+			} else {
+				color = 'red';
+			}
+			span.innerHTML = str;
+			span.style.color = color;
+			text.style.borderColor = color;
+		}
+		function strLen(value) {
+			var len = value.length;
+			for (var i = 0; i < value.length; i++) {
+				var charCode = value.charCodeAt(i);
+				if (charCode > 128 || charCode < 0) {
+					len++;
+				}
+			}
+			return len;
+		}
+	</script>
+</body>
+</html>

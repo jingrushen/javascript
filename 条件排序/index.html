@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <link rel="stylesheet" href="bootstrap-3.3.7-dist/css/bootstrap.css">
+    <style>
+        .mycaret {
+            width: 0px;
+            height: 0px;
+            display: inline-block;
+            border-radius: 3px;
+            vertical-align: middle;
+        }    
+        .mycaret.caret-up {
+            border-bottom: 5px dashed #2d2d2d;
+            border-right: 5px solid transparent;
+            border-left: 5px solid transparent;
+        }
+        .mycaret.caret-down {
+            border-top: 5px dashed #2d2d2d;
+            border-right: 5px solid transparent;
+            border-left: 5px solid transparent;
+        }        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="panel-default">
+            <table id="tab" class="table table-striped table-bordered table-hover table-responsive">
+            </table>
+        </div>
+    </div>
+    <script>
+
+        ///表头标题数据
+        var tabHeaderData = [
+
+            {
+                key: 'name',
+                value: '姓名',
+                sortable: false
+            },
+            {
+                key: 'Chinese',
+                value: '语文',
+                sortable: true
+            },
+            {
+                key: 'Math',
+                value: '数学',
+                sortable: true
+            },
+            {
+                key: 'English',
+                value: '英语',
+                sortable: true
+            },
+            {
+                key: 'total',
+                value: '总分',
+                sortable: true
+            }
+
+        ];
+
+        ///信息数据
+        var data = [
+
+
+            {
+                name: '小明',
+                Chinese: 80,
+                Math: 90 ,
+                English: 70,
+                total: 240
+            },
+            {
+                name: '小红',
+                Chinese: 90,
+                Math: 60 ,
+                English: 90,
+                total: 240
+            },
+            {
+                name: '小亮',
+                Chinese: 60,
+                Math: 100,
+                English: 70,
+                total: 230
+            },
+            {
+                name: '小如',
+                Chinese: 100,
+                Math: 120 ,
+                English: 150,
+                total: 370
+            },
+            {
+                name: '小小',
+                Chinese: 20,
+                Math: 50 ,
+                English: 10,
+                total: 80
+            },
+            {
+                name: '小猪',
+                Chinese: 10,
+                Math: 5,
+                English: 25,
+                total: 40
+            }
+
+        ];
+
+
+        /**
+         * 创建表格
+         * @param  {[type]} dataHead 表头数据
+         * @param  {[type]} dataCon  表格数据
+         * @param  {[type]} tableId  table的id名
+         * @return {[type]}          返回立即执行函数
+         */
+        var tableGenerator = function (dataHead, dataCon, tableId) {
+            var table = document.querySelector(tableId);
+
+            function initHeader(dataHead) {
+                var fragment = document.createDocumentFragment();
+                var thead = document.createElement('thead'),
+                    tr = document.createElement('tr');
+
+                var th = document.createElement('th');
+                th.innerHTML = '#';
+                fragment.appendChild(th);
+
+                dataHead.forEach(function (obj) {
+                    var th = document.createElement('th');
+                    th.innerHTML = obj.value;
+                    if (obj.sortable) {
+                        var span1 = document.createElement('span'),
+                            span2 = document.createElement('span');
+                        span1.className = 'mycaret caret-down';
+                        span2.className = 'mycaret caret-up';
+                        span1.setAttribute('data-name', obj.key + '-down');
+                        span2.setAttribute('data-name', obj.key + '-up');
+                        th.appendChild(span1);
+                        th.appendChild(span2);
+                    }
+                    fragment.appendChild(th);
+                })
+
+                table.appendChild(thead);
+                thead.appendChild(tr);
+                tr.appendChild(fragment);
+            }
+
+            function initContent(dataCon) {
+                var fragment = document.createDocumentFragment();
+                var tbody = document.createElement('tbody');
+
+
+                dataCon.forEach(function (obj, index) {
+                    var tr = document.createElement('tr');
+                    var th = document.createElement('th');
+                    th.innerHTML = index + 1;
+
+                    var key;
+                    for (key in obj) {
+                        var td = document.createElement('td');
+                        td.innerHTML = obj[key];
+                        fragment.appendChild(td);
+                    }
+
+                    tr.appendChild(th);
+                    tr.appendChild(fragment);
+                    tbody.appendChild(tr);
+                })
+
+                table.appendChild(tbody);
+
+            }
+
+            function listener() {
+                var thead = table.querySelector('thead');
+                thead.addEventListener('click', function (e) {
+                    if (e.target.nodeName.toLowerCase() === 'span') {
+                        var option = e.target.getAttribute('data-name');
+                        var o = option.match(/(\w+)\-(\w+)/);
+                        sort(o[1], o[2]);
+                    }
+                })
+            }
+
+            function sort(acco, op) {
+                if (op === 'up') {
+                    dataCon = dataCon.sort(function (a, b) {
+                        return a[acco] - b[acco];
+                    })
+                } else {
+                    dataCon = dataCon.sort(function (a, b) {
+                        return b[acco] - a[acco];
+                    });                   
+                }
+                table.removeChild(table.querySelector('tbody'));
+                initContent(dataCon);
+            }
+
+            return (function (){
+                initHeader(dataHead);
+                initContent(dataCon);
+                listener();
+            }())
+         }
+
+        tableGenerator(tabHeaderData, data, '#tab');
+
+
+    </script>
+</body>
+</html>
