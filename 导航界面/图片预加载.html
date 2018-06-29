@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>图片预加载</title>
+</head>
+<body>
+<script>
+	window.onload=function(){
+
+		function preloadimages(arr){
+			var newimages=[];
+			var arr=(typeof arr!="object")? [arr]:arr;
+			for(var i=0;i<arr.length;i++){
+				newimages[i]=new Image();
+				newimages[i].src=arr[i];
+			}
+		}
+		preloadimages("image/1.jpg","image/2.jpg","image/3.jpg","image/4.jpg","image/5.jpg","image/6.jpg");
+		
+	}
+</script>
+</body>
+</html>

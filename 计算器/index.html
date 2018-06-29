@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>计算器</title>
+	<style>
+		*{
+			margin: 0;
+			padding: 0;
+		}
+		.calculate{
+			margin: 10px auto;
+			width: 300px;
+			border-radius: 3px;
+			border: 1px solid #ddd;
+		}
+		.calc-in-out{
+			width: 100%;
+			padding: 10px 20px;
+			text-align: right;
+			box-sizing: border-box;
+			background-color: rgba(250,250,250,0.9);
+		}
+		.calc-in-out p{
+			margin: 5px;
+			width: 100%;
+			overflow: hidden;
+		}
+		.calc-history{
+			font-size: 18px;
+			color: #bbb;
+			border-bottom: 1px dotted #ddf;
+			min-height: 23px;
+		}
+		.calc-in, .calc-out{
+			font-size: 20px;
+			min-height: 39px;
+			line-height: 39px;
+		}
+		.calc-in{
+			color: #888;
+		}
+		.calc-out{
+			color: #ccc;
+		}
+		.calc-in_active, .calu-out_active{
+			max-height: 39px;
+			font-size: 34px;
+			color: #666;
+		}
+		.calc-operation{
+			width: 100%;
+			border-collapse: collapse;
+		}
+		.calc-operation td{
+			padding: 10px;
+			width: 25%;
+			text-align:center;
+			border: 1px solid #ddd;
+			font-size: 26px;
+			color: #888;
+			cursor: pointer;
+		}
+		.calc-operation .cls{
+			color: #ee8956;
+		}
+		.calc-operation td:active{
+			background: #ddd;
+		}
+	</style>
+</head>
+<body>
+	<div class="calculate">
+		<div class="calc-in-out">
+			<!-- 上一条运算记录 -->
+			<p class="calc-history"></p>
+			<!-- 新输入的运算记录 -->
+			<p class="calc-in" title="80"></p>
+			<!-- 输出的结果 -->
+			<p class="calc-out">0</p>
+		</div>
+		<table class="calc-operation">
+			<tr>
+				<td data-ac="cls" class="cls">C</td>
+				<td data-ac="del">&larr;</td>
+				<td data-ac="sq">x<sup data-ac="sq">2</sup></td>
+				<td data-ac="mul">&times;</td>
+			</tr>
+			<tr>
+				<td data-val="7">7</td>
+				<td data-val="8">8</td>
+				<td data-val="9">9</td>
+				<td data-ac="div">&divide;</td>
+			</tr>
+			<tr>
+				<td data-val="4">4</td>
+				<td data-val="5">5</td>
+				<td data-val="6">6</td>
+				<td data-ac="plus">+</ta>
+			</tr>
+			<tr>
+				<td data-val="1">1</td>
+				<td data-val="2">2</td>
+				<td data-val="3">3</td>
+				<td data-ac="minus">-</td>
+			</tr>
+			<tr>
+				<td data-ac="per">%</td>
+				<td data-val="0">0</td>
+				<td data-ac="dot">.</td>
+				<td data-ac="eq">=</td>
+			</tr>
+		</table>
+	</div>
+<script>
+	var calc_history = document.querySelector('.calc-history'),
+		calc_in = document.querySelector('.calc-in'),
+		calc_out = document.querySelector('.calc-out'),
+		calc_operation = document.querySelector('.calc-operation'),
+
+		index = -1,
+		arr = [],
+		op = {
+			'plus':'+',
+			'minus':'-',
+			'mul':'*',
+			'div':'/'
+		},
+		opArr = ['+','-','*','/'];
+	calc_operation.addEventListener('click',command,false);
+	function set(){
+		arr = [];
+		calc_in.innerHTML = arr.join("");
+		calc_out.innerHTML = 0;
+		index = -1;
+	}
+	function command(e){
+		var value = e.target.getAttribute('data-ac') || e.target.getAttribute('data-val');
+		//如果点击Cls
+		if(value == "cls"){
+			set();
+		}
+		//如果点击纯数字
+		else if(!isNaN(parseFloat(value,10))){
+			if(calc_out.innerHTML.indexOf('=') != -1){
+				set();
+			}
+			arr.push(value);
+			calc_in.innerHTML = arr.join("");
+			reset();
+		}
+		//如果点击+ - * /
+		else if(isOp(op[value])){
+			reset();
+			//若已经点击过一次等于号还想继续运算
+			if(calc_out.innerHTML.indexOf('=') != -1){
+				var a = calc_out.innerHTML.split('');
+				a.splice(0,1);
+				set();
+				arr = a;
+				arr.push(op[value]);
+				calc_in.innerHTML = arr.join('');
+			}
+			//若没有输入符号，可以输入
+			if(opArr.indexOf(arr[arr.length-1]) == -1){
+				arr.push(op[value]);
+				calc_in.innerHTML = arr.join('');
+			}
+			
+			/*if(calc_out.innerHTML.indexOf('=') != -1){
+				calc_out.innerHTML = calc_out.innerHTML.substr(1);
+				arr = [];
+				arr.push('calc_out.innerHTML',op[value]);
+				index = -1;
+				cal(arr);
+			}*/
+			//若想更改符号
+			/*if(opArr.indexOf(arr[arr.length-1]) != -1){
+				arr.splice(arr.length-1,1,op[value]); 
+			} else{
+				arr.push(op[value]);
+				cal(arr);
+			}
+			calc_in.innerHTML = arr.join("");*/
+		}
+		//如果点击小数点
+		else if(value == 'dot'){
+			if(isNaN(arr[arr.length-1])){
+				arr.push("0");
+			}
+			arr.push(".");
+			calc_in.innerHTML = arr.join("");
+		}
+		//如果点击 = 
+		else if(value == "eq"){
+			//如果最后一个字符是符号，去除符号
+			if(isNaN(arr[arr.length-1])){
+				arr.splice(arr.length-1,1);
+				calc_in.innerHTML = arr.join('');
+			}
+			cal(arr);
+			calc_out.innerHTML = "=" + calc_out.innerHTML;
+			calc_history.innerHTML = calc_in.innerHTML + calc_out.innerHTML;
+			calc_in.classList.remove('calc-in_active');
+			calc_out.classList.add('calu-out_active');
+		}
+		//如果点击del
+		else if(value == "del"){
+			arr.splice(arr.length-1,1);
+			calc_in.innerHTML = arr.join("");
+		}
+	}
+	function isOp(op){
+		return op && opArr.indexOf(op) != -1;
+	}
+	function cal(arr){
+		var sum,option,num;
+		index = -1;
+		sum = parseFloat(arr.slice(0).join(''));
+		do{
+			index = reindex(arr);
+			option = arr[index];
+			num = parseFloat(arr.slice(index+1).join(''));
+			sum = parseFloat(calculate(sum,option,num));		
+		}while(index);
+		calc_out.innerHTML = parseFloat(sum);
+	}
+		/*var num1,num2,option,result;
+		num1 = parseFloat(calc_out.innerHTML);
+		num2 = parseFloat(arr.slice(index+1).join(""));
+		if(flag){
+			flag = false;
+			option = '+';
+		} else{
+			option = arr[index];
+		}
+		index = reindex(arr);  //存储第一次符号的位置
+		result = calculate(num1,option,num2);
+		calc_out.innerHTML = parseFloat(result);
+
+		/*if(index == -1){
+			num1 = parseFloat(arr.join(""));
+			num2 = 0;
+			calc_out.innerHTML = num1;
+		} else{
+			
+			
+			
+			
+			
+		}
+		/*num1 = parseFloat(arr.join(""));
+		num2 = parseFloat(calc_out.innerHTML); //0
+		option = index == -1?  : arr[index];
+		result = calculate(num1,option,num2);
+		calc_out.innerHTML = result;
+
+
+		/*if(flag){
+			flag = false;
+			index = reindex(str);
+			num1 = parseFloat(str.substr(0,index));
+		} else{
+			num1 = parseFloat(str.substr(index+1,str.length-1));
+		}
+		num2 = parseFloat(calc_out.innerHTML);
+		option = str[index];
+		index = str.length-1;
+		result = calculate(num1,option,num2);
+		calc_out.innerHTML = result;*/
+	
+	/*function cal2(arr){
+		var num1,num2,option,result;
+		index = -1;
+		flag = true;
+		calc_out.innerHTML = 0;
+		while(index != arr.length){
+			num1 = parseFloat(calc_out.innerHTML);
+			num2 = parseFloat(arr.slice(index+1).join(""));
+			if(flag){
+				flag = false;
+				option = '+';
+			} else{
+				option = arr[index];
+			}
+			index = reindex(arr);  //存储第一次符号的位置
+			result = calculate(num1,option,num2);
+			calc_out.innerHTML = parseFloat(result);
+		}
+
+		index = -1;
+		var num1 = parseFloat(arr.slice(index+1).join(""));
+		index = reindex(arr);
+		var option = arr[index];
+		var num2 = parseFloat(arr.slice(index+1).join(""));
+		result = calculate(num1,option,num2);
+		calc_out.innerHTML = parseFloat(result);
+	}*/
+    function reindex(arr){      
+      for(var i=index+2; i<arr.length; i++){
+        if(arr[i] == '+'){
+          return i;
+        } else if(arr[i] == "-"){
+          return i;
+        } else if(arr[i] == "*"){
+          return i;
+        } else if(arr[i] == "/"){
+          return i;
+        }
+      } 
+      return false;
+    }  
+	function calculate(a,op,b){
+		return op === "+"? a + b : op === "-"? a - b : op === '*'? a * b : op === "/"? a / b : parseFloat(a);
+	}
+	function reset(){
+		calc_out.classList.remove('calu-out_active');
+		calc_in.classList.add('calc-in_active');
+	}
+</script>
+</body>
+</html>
+<!-- 
+1.按纯数字
+2.按加减乘除
+3.按等于
+4.按del
+5.按c清除
+ -->
+ <!-- 
+table->thead/tbody->tr->th(行头)->td(一行)->tfoot
+box-sizing: content-box | border-box | inherit 
+	盒子真正呈现的宽度 = width + padding + border
+	盒子真正呈现的高度 = height + padding + border
+	当我们想要一个盒子呈现宽度为200px;但同时设置了padding和border，
+	使用box-sizing:border-box 可以将盒子宽度自动调整成我们想要的内容宽度而不必去减少padding和border的大小
+min-height:当内容少的时候最小高度能将内容呈现出来，当内容大于最小高度能承受的的空间的时候，对象
+max-height:
+border-collapse:
+  -->
+  <!-- 
+如何检查用户连续按了两次op符号
+   -->
+   <!-- 
+	array.find()
+	array.findIndex()
+	array.slice
+	array.splice
+    -->
+<!-- 
+substr(start,length)
+substring(start,stop)
+ -->
+ <!-- 
+ 字符串转换成数组 str.split('');
+ 数组转成字符串 arr.join('');
+ eval() 将字符串转换成数字
+ parseInt() 将字符串转换成整数
+ parseFloat() 将字符串转换成浮点数
+ -->

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>drag和drop</title>
+	<style>
+	*{
+		margin: 0;
+		padding: 0;
+	}
+		.dustbin{
+			width: 100px;
+			height: 250px;
+			background: gray;
+			float: left;
+			font-size: 36px;
+			text-align: center;
+			text-shadow: -1px -1px #bbb;
+		}
+		.dustbin:-moz-drag-over{
+			color: red;
+		}
+		.dragbox{
+			padding-left: 15px;
+			float: left;
+			width: 200px;
+		}
+		.draglist{
+			background: #eee;
+			padding: 10px;
+			border: 2px dashed #ccc;
+			cursor: move;
+			margin-bottom: 5px;
+		}
+		.draglist:hover{
+			border-color: #cad5eb;
+			background: #f0f3f9;
+		}
+		.dragremind{
+			clear: both;
+		}
+
+		#demo1{
+			margin:20px;
+		}
+		#demo1 .panel-list{
+			list-style: none;
+			overflow: hidden;
+		}
+		#demo1 .panel-item{
+			float: left;
+			width: 100px;
+			height: 100px;
+			background: #ddd;
+			margin-right: 30px;
+		}
+		#demo1-src{
+			width: 50px;
+			height: 50px;
+			background: pink;
+		}
+		#demo1 .over{
+			border: 1px dashed #000;
+			-webkit-transform: scale(0.8,0.8);
+		}
+
+		#demo2{
+			margin: 20px;
+		}
+		#demo2 .preview{
+			height: 300px;
+			background: #ddd;
+		}
+		#demo2 li{
+			float: left;
+			margin-left: 40px;
+		}
+		#demo2 img{
+			max-height: 150px;
+			width: auto;
+		}
+	</style>
+</head>
+<body>
+	<div class="dustbin"><br>垃<br>圾<br>箱</div>
+	<div class="dragbox">
+		<div class="draglist" title="拖拽我" draggable="true">列表1</div>
+		<div class="draglist" title="拖拽我" draggable="true">列表2</div>
+		<div class="draglist" title="拖拽我" draggable="true">列表3</div>
+		<div class="draglist" title="拖拽我" draggable="true">列表4</div>
+		<div class="draglist" title="拖拽我" draggable="true">列表5</div>
+		<div class="draglist" title="拖拽我" draggable="true">列表6</div>
+	</div>
+	<div class="dragremind"></div>
+
+	<div id="demo1">
+		<ul class="panel-list">
+			<li class="panel-item"></li>
+			<li class="panel-item"></li>
+			<li class="panel-item"></li>
+			<li class="panel-item"></li>
+			<li class="panel-item"></li>
+		</ul>
+		<h2>拖拽下面的方块到上面任意容器中</h2>
+		<div class="movable" id="demo1-src" draggable="true"></div>
+	</div>
+	<div id="demo2">
+		<h2>从文件夹中拖拽图片到下面的区域进行预览</h2>
+		<ul class="preview"></ul>
+	</div>
+<script>
+	//兼容浏览器
+	var $ = function(selector){
+		if(!selector){ return [];}
+		var arrEle = [];
+		if(document.querySelectorAll){
+			arrEle = document.querySelectorAll(selector);
+			return arrEle;
+		} else{
+			var oAll = document.getElementsByTagName('div'),
+				lAll = oAll.length;
+			if(lAll){
+				for(var i=0; i<lAll; i++){
+					if(/^\./.test(selector)){
+						if(oAll[i].className === selector.replace(".","")){
+							arrEle.push(oAll[i]);
+						}
+					} else if(/^\#/.test(selector)){
+						if(oAll[i].id === selector.replace('.',"")){
+							arrEle.push(oAll[i]);
+						}
+					}
+				}
+			}
+		}
+		return arrEle;
+	}
+
+	//demo1
+	var eleDustbin = $(".dustbin")[0],
+		eleDrags = $(".draglist"),
+		lDrags = eleDrags.length,
+		eleRemind = $(".dragremind")[0],
+		eleDrag = null;
+
+	//拖拽元素
+	for(var i = 0; i<lDrags; i++){
+		eleDrags[i].ondragstart = function(event){
+			//dragWithCustomImage(event);
+			event.dataTransfer.effectAllowed = "move"; //表示可以移动到新的位置
+			eleDrag = event.target;
+			return true;
+		};
+		eleDrags[i].ondragend = function(event){
+			eleDrag = null;
+			return false;
+		}
+	}
+
+	//目标元素
+	eleDustbin.ondragenter = function(event){
+		//event.preventDefault();
+		this.style.color = "#ffffff";
+	}
+	//需要在ondragover中添加preventDefault，否则ondrop不会执行
+	eleDustbin.ondragover = function(event){
+		event.preventDefault();
+	}
+	eleDustbin.ondragleave = function(event){
+		this.style.color = '#000000';
+	}
+	eleDustbin.ondrop = function(event){
+		if(eleDrag){
+			eleRemind.innerHTML = '<strong>' + eleDrag.innerHTML + '</strong> 被扔进垃圾箱里了！';
+			eleDrag.parentNode.removeChild(eleDrag);
+		}
+		this.style.color = '#000000';
+	};
+
+
+	//demo2
+	var items = document.querySelector('.panel-list'),
+		len = items.length,
+		move = $('.movable')[0];
+
+	move.addEventListener('dragstart',onDragstart,false);
+	items.addEventListener('dragenter',onDragenter,false);
+	items.addEventListener('dragleave',onDragleave,false);
+	items.addEventListener('dragover',onDragover,false);
+	items.addEventListener('drop',onDrop,false);
+
+
+	function onDragstart(e){
+		e.dataTransfer.setData('text/plain',e.target.id);
+	}
+	function onDragenter(e){
+		if(e.target.classList.contains('panel-item')){
+			e.target.classList.add('over');
+		}
+	}
+	function onDragleave(e){
+		if(e.target.classList.contains('panel-item')){
+			e.target.classList.remove('over');
+		}		
+	}
+	function onDragover(e){
+		e.preventDefault();
+	}
+	function onDrop(e){
+		var id = e.dataTransfer.getData('text/plain');
+		if(e.target.classList.contains('panel-item')){
+			e.target.appendChild(document.getElementById(id));
+			e.target.classList.remove('over');
+		}
+	}
+
+
+	//demo3
+	var preview = $('.preview')[0];
+	preview.addEventListener('dragover',function(e){
+		e.preventDefault();
+	});
+	preview.addEventListener('drop',function(e){
+		e.preventDefault();
+		[].forEach.call(e.dataTransfer.files,function(file){   //e.dataTransfer.files获取文件的信息
+			if(file && file.type.match('image.*')){
+				var reader = new FileReader();
+				reader.onload = function(event){
+					var img = document.createElement('img');
+					img.src = event.target.result;    //读取file文件的data数据，相当于本地地址
+					var li = document.createElement('li');
+					li.appendChild(img);
+					preview.appendChild(li);
+				}
+				reader.readAsDataURL(file);
+			}
+		})
+	},false);
+function dragWithCustomImage(event) {
+  var canvas = document.createElementNS("http://www.w3.org/1999/xhtml","canvas");
+  canvas.width = canvas.height = 50;
+
+  var ctx = canvas.getContext("2d");
+  ctx.lineWidth = 4;
+  ctx.moveTo(0, 0);
+  ctx.lineTo(50, 50);
+  ctx.moveTo(0, 50);
+  ctx.lineTo(50, 0);
+  ctx.stroke();
+
+  var dt = event.dataTransfer;
+  dt.setData('text/plain', 'Data to Drag');
+  dt.setDragImage(canvas, 25, 25);
+}
+</script>
+</body>
+</html>
+<!-- 
+拖拽元素 目标元素
+ondragstart 当拖拽元素开始被拖拽的时候，拖拽元素
+
+ondragenter 当拖拽元素进入目标元素时候，目标元素
+ondragover 当拖拽元素在目标元素上移动的时候，目标元素
+ondrop 被拖拽的元素在目标元素上同时鼠标放开的时候，目标元素
+ondragend 当拖拽完成鼠标松开的时候，拖拽元素
+ondragleave 当拖拽离开目标元素，目标元素
+event.preventDefault 阻止默认行为发生
+event.effectAllowed 属性，拖拽效果
+draggable 属性，draggable='true'，表示可以进行拖拽
+
+DataTransfer 保存被拖动的数据
+dropEffect
+effectAllowed:
+
+
+
+注意：
+ondrop优先于ondragend
+ -->

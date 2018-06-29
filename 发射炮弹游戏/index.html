@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>发射炮弹小游戏</title>
+	<style>
+		#stage{
+			width: 300px;
+			height: 300px;
+			position: relative;
+		}
+		#background{
+			width: 300px;
+			height: 300px;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background: #eee;
+		}
+		#cannon{
+			width: 20px;
+			height: 20px;
+			position: absolute;
+			top: 270px;
+			left: 140px;
+			background: yellow;
+		}
+		#alien{
+			width: 20px;
+			height: 20px;
+			position: absolute;
+			top: 20px;
+			left: 80px;
+			background: pink;
+		}
+		#missile{
+			width: 20px;
+			height: 20px;
+			position: absolute;
+			top: 270px;
+			left: 140px;
+			background: black;
+		}
+		#explosion{
+			width: 20px;
+			height: 20px;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background: red;
+			display: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="stage">
+		<div id="background"></div>
+		<div id="cannon"></div>
+		<div id="alien"></div>
+		<div id="missile"></div>
+		<div id="explosion"></div>
+	</div>
+	<p id="output">请输入x和y坐标（0-300），然后点击fire</p>
+	<input type="text" id="inputX" placeholder="X...">
+	<input type="text" id="inputY" placeholder="Y...">
+	<button>fire</button>
+<script>
+	function BinaryTree(){
+		var Node = function(key) {
+			this.key=key;
+			this.left=null;
+			this.right=null;
+			this.selected=false;
+		}
+
+		var root = null;
+		this.insert = function (key){
+			var newNode = new Node(key);
+			if(root === null){
+				root = newNode;
+			} else {
+				insertNode(root,newNode);
+			}
+		};
+
+		var insertNode = function(node,newNode) {
+			if (newNode.key < node.key) {
+				if (node.left === null) {
+					node.left = newNode;
+				} else {
+					insertNode(node.left,newNode);
+				}
+			} else {
+				if (node.right === null) {
+					node.right = newNode;
+				} else {
+					insertNode(node.right,newNode);
+				}
+			}
+		};
+
+		//中序遍历二叉树
+		this.inOrderTraverse = function (call){
+			inOrderTraverseNode(root,call);
+		};
+		var inOrderTraverseNode = function (node,call) {
+			if(node !== null){
+				inOrderTraverseNode(node.left,call);
+				call(node.key);
+				inOrderTraverseNode(node.right,call);
+			}
+		};
+
+		//前序遍历二叉树
+		this.preOrderTraverse = function (callback){
+			preOrderTraverseNode(root,callback);
+		};
+		var preOrderTraverseNode = function (node,callback) {
+			if(node !== null){			
+				callback(node);
+				preOrderTraverseNode(node.left,callback);
+				preOrderTraverseNode(node.right,callback);
+			}
+		}
+
+		//查找节点
+		this.search = function(key){
+			return searchNode(root,key);
+		}
+		var searchNode = function(node,key){
+			if(node === null){
+				return null;
+			}
+			if(key < node.key){
+				return searchNode(node.left,key);
+			} else if(key > node.key){
+				return searchNode(node.right,key);
+			} else {
+				return node;
+			}
+		}
+	}
+
+	//生成一个随机数的数组nodesArr[]
+	var nodesArr = [];
+	for(var i =0; i < 10 ; i++){
+		nodesArr[i] = Math.floor((Math.random() * (281-20))+20);
+	}
+	for(var i=0;i<10;i++){
+		console.log(nodesArr[i]);
+	}
+
+	var binaryTree = new BinaryTree();
+	nodesArr.forEach(function (key) {
+		binaryTree.insert(key);
+	});
+	var nodesForAlien = [];  //存放二叉树节点的数组
+	var callback = function (node) {
+		nodesForAlien.push(node);
+		console.log(nodesForAlien);
+	}
+	var call = function(key){
+		console.log(key);
+	}
+	//binaryTree.inOrderTraverse(call);
+	binaryTree.preOrderTraverse(callback);  //通过前序遍历复制二叉树存入数组nodesForAlien中
+
+
+	//建立第一次外星人横坐标
+	var alienNodeSelect = Math.floor(Math.random() * 9);
+	nodesForAlien[alienNodeSelect].selected = true;
+	var alienX = nodesForAlien[alienNodeSelect].key;
+
+	//
+	var	alienY = 20,
+		guessX = 0,
+		guessY = 0;
+	var shotsRemaning = 8,
+		shotsMade = 0,
+		gameState = "",
+		gameWon = false;
+
+	var cannon = document.querySelector("#cannon"),
+		alien = document.querySelector("#alien"),
+		missile = document.querySelector("#missile"),
+		explosion = document.querySelector("#explosion");
+
+	var inputX = document.querySelector("#inputX"),
+		inputY = document.querySelector("#inputY"),
+		output = document.querySelector("#output"),
+		button = document.querySelector("button");
+	button.style.cursor = "pointer";
+	button.addEventListener("click", clickHandler, false);
+	window.addEventListener("keydown", keydownHandler, false);
+
+
+	function clickHandler(){
+		validateInput();
+	}
+	function keydownHandler(event){
+		if(event.keyCode === 13){
+			validateInput();
+		}
+	}
+
+	function validateInput(){
+		guessX = parseInt(inputX.value);
+		guessY = parseInt(inputY.value);
+		if(isNaN(guessX) || isNaN(guessY)){
+			output.innerHTML = "请输入数字坐标";
+		} else if (guessX >= 300 || guessY >= 300) {
+			output.innerHTML = "坐标不能大于300";
+		} else {
+			playGame();
+		}
+	}
+
+	function playGame(){	
+		shotsRemaning--;
+		shotsMade++;
+		gameState = "炮弹：" + shotsMade + ", 数量还剩下 " + shotsRemaning;
+
+		guessX = parseInt(inputX.value);
+		guessY = parseInt(inputY.value);
+		var alienNode = binaryTree.search(guessX);
+		if(alienNode !== null && alienNode.selected === true){
+			if(guessY >= alienY && guessY <= alienY + 20){
+				gameWon = true;
+				endGame();
+			} else {
+				output.innerHTML = "没有击中" + "<br>" + gameState;
+				if(shotsRemaning < 1){
+					endGame();
+				}
+			}
+		}
+
+		if(!gameWon){
+			nodesForAlien[alienNodeSelect].selected = false;
+			alienNodeSelect = Math.floor(Math.random() * 9);
+			nodesForAlien[alienNodeSelect].selected = true;
+			alienX = nodesForAlien[alienNodeSelect].key;
+			alienY += 30;
+		}	
+
+		render();
+		console.log(alienX);
+		console.log(alienY);
+	}
+
+	function render(){
+		alien.style.left = alienX + "px";
+		alien.style.top = alienY + "px";
+		cannon.style.left = guessX + "px";
+		missile.style.left = guessX + "px";
+		missile.style.top = guessY + "px";
+
+		if(gameWon){
+			explosion.style.display = "block";
+			explosion.style.left = alienX + "px";
+			explosion.style.top = alienY + "px";
+
+			alien.style.display = "none";
+			missile.style.display = "none";
+		}
+	}
+
+	function endGame(){
+		if(gameWon){
+			output.innerHTML = "hit! 你拯救了地球" + "<br>" + "发射了炮弹 " + shotsMade + " 发";
+		} else {
+			output.innerHTML = "失败了！";
+		}
+		button.removeEventListener("click", clickHandler, false);
+		button.disabled = true;
+		window.removeEventListener("keydown", keydownHandler, false);
+		inputX.disabled = true;
+		inputY.disabled = true;
+	}
+
+</script>
+</body>
+</html>

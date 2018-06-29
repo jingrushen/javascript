@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>导航页面</title>
+	<style>
+		*{margin: 0;padding: 0;text-decoration: none;}
+		body{
+			background-image: url(image/1.jpg);
+			background-repeat: no-repeat;
+			background-size: cover;
+		}
+		#container{
+			width: 70%;
+			margin: 20px auto;
+		}
+		#BigBox{
+			height: 200px;
+			margin: 20px auto;
+			box-shadow: 0 0 20px #000 inset;
+			transition:0.5s;
+		}
+		#BigBox:hover{
+			background: #000;opacity: 0.7;
+		}
+		#BigBox p{
+			font-size: 72px;font-family: "MetroNova";
+			color: #A79E8C;
+			line-height: 200px;
+			text-align: center;
+			font-weight: lighter;
+		}
+		#BigBox p:hover{
+			color: #F0C05F;
+		}
+		.SmallBox{
+			height: 150px;width: 24%;
+			margin: 5px 0.5% 5px 0.5%;
+			float: left;
+			box-shadow: 0 0 20px #000 inset;
+			transition: 1s;
+		}
+		.SmallBox:hover{
+			background: #000;opacity: 0.7;
+		}
+		.SmallBox p{
+			font-size: 36px;font-family: "MetroNova";
+			color: #A79E8C;
+			line-height: 150px;
+			text-align: center;
+			font-weight: lighter;
+		}
+		.SmallBox p:hover{
+			color: #F0C05F;
+		}
+		.clearfix:after{
+			content: '';
+			display: block;
+			clear: both;
+			height: 0;
+			visibility: hidden;
+		}
+		#button{
+			opacity: 0.7;
+			cursor: pointer;
+			position: relative;
+		}
+		.btnstyle{
+			height: 100px;
+			width: 100px;
+			box-shadow: 0 0 20px #000 inset;
+			transition:0.5s;
+			border-radius: 50px;
+			position: absolute;
+			top: 300px;		
+		}
+		#prev{
+			left: 50px;
+		}
+		#next{
+			right: 50px;
+		}
+		#button p{
+			text-align: center;
+			color: #A79E8C;
+			line-height: 100px;
+			font-size: 50px;
+		}
+		#prev:hover{
+			background: #000;opacity: 0.7;
+		}
+		#next:hover{
+			background: #000;opacity: 0.7;
+		}
+	</style>
+	<script>
+		window.onload=function anonymouse(){
+
+
+			imgs = [
+				'https://images.unsplash.com/photo-1441794016917-7b6933969960?dpr=1&auto=compress,format&fit=crop&w=1951&h=&q=80&cs=tinysrgb&crop=',
+				'image/2.jpg',
+				'image/3.jpg',
+				'image/4.jpg',
+				'image/5.jpg',
+				'image/6.jpg',
+			];
+
+			var len = imgs.length;
+			function preload(arr){
+				for(var i=0;i<len;i++){
+					var ImgObj = new Image();
+					ImgObj.src=arr[i];
+				}
+			}
+			preload(imgs);
+			var prev=document.getElementById('prev');
+			var next=document.getElementById('next');
+			var body=document.getElementsByTagName('body')[0];
+			var index=0;
+			prev.onclick=function(){
+				turnprev();
+			}
+			next.onclick=function(){
+				turnnext();
+			}
+			function turnprev(){
+				index--;
+				if(index<0){
+					index=len-1;
+				}
+				body.style.backgroundImage="url("+imgs[index]+")";
+			}
+			function turnnext(){
+				index++;
+				if(index==len){
+					index=0;
+				}
+				body.style.backgroundImage="url("+imgs[index]+")";
+			}
+		}
+	</script>
+</head>
+<body>
+	<div id="button">
+		<div id="prev" class="btnstyle"><p title="上一张背景图"><</p></div>
+		<div id="next" class="btnstyle"><p title="下一张背景图">></p></div>
+	</div>
+	<div id="container">
+		<div id="BigBox"><a href="http://www.baidu.com/"><p>Baidu</p></a></div>
+		<div class="clearfix">
+			<div class="SmallBox"><a href="http://www.imooc.com/"><p>Imooc</p></a></div>
+			<div class="SmallBox"><a href="http://www.amazon.com/"><p>Amazon</p></a></div>
+			<div class="SmallBox"><a href="http://www.taobao.com/"><p>Taobao</p></a></div>
+			<div class="SmallBox"><a href="http://www.zhihu.com/"><p>Zhihu</p></a></div>
+			<div class="SmallBox"><a href="http://www.awwwards.com/awards-of-the-day/"><p>Awwwards</p></a></div>
+			<div class="SmallBox"><a href="http://niice.co/"><p>Niice</p></a></div>
+			<div class="SmallBox"><a href="https://github.com/"><p>GitHub</p></a></div>
+			<div class="SmallBox"><a href="http://www.iqiyi.com/"><p>Iqiyi</p></a></div>
+			<div class="SmallBox"><a href="http://www.zhangxinxu.com/wordpress/"><p>Zhangxinxu.blog</p></a></div>
+			<div class="SmallBox"><a href="https://www.huxiu.com/"><p>Huxiu</p></a></div>
+			<div class="SmallBox"><a href="https://www.behance.net/"><p>Behance</p></a></div>
+			<div class="SmallBox"><a href="http://huaban.com/"><p>Huaban</p></a></div>
+			<div class="SmallBox"><a href="https://unsplash.com/"><p>Unsplash</p></a></div>
+			<div class="SmallBox"><a href="http://ui-cloud.com/browse/"><p>UI-Cloud</p></a></div>
+			<div class="SmallBox"><a href="https://segmentfault.com/"><p>SegmentFault</p></a></div>
+			<div class="SmallBox"><a href="http://www.peecheey.com/"><p>Peechee</p></a></div>
+			<div class="SmallBox"><a href="https://www.bilibili.com/"><p>Bilibili</p></a></div>
+		</div>
+	</div>
+</body>
+</html>
